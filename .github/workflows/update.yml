@@ -27,9 +27,7 @@ jobs:
       - name: Try locating Chromium
         run: which chromium-browser || echo "Chromium not found"
 
-      - name: Install pip packages
-        run: pip install -r requirements.txt
-
+        
       - name: Install Python dependencies
         run: pip install selenium requests beautifulsoup4
 
