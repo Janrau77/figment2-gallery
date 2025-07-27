@@ -10,16 +10,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      - run: pip install requests beautifulsoup4
-      - run: python scripts/scrape_figment2.py
-      - run: python scripts/update_gallery.py
-      - run: |
-          git config user.name "GitHub Bot"
-          git config user.email "actions@github.com"
-          git add images/*.jpg gallery.html
-          git commit -m "Update gallery"
+
+      - name: Install Chrome and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip xvfb
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
+          rm google-chrome-stable_current_amd64.deb
+
+      - name: Install ChromeDriver
+        run: |
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+' | head -1)
+          wget -O /tmp/LATEST_RELEASE "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION}"
+          VERSION=$(cat /tmp/LATEST_RELEASE)
+          wget https://chromedriver.storage.googleapis.com/${VERSION}/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+          rm chromedriver_linux64.zip
+
+      - name: Install Python dependencies
+        run: pip install selenium requests beautifulsoup4
+
+      - name: Scrape images with Selenium
+        run: xvfb-run python scripts/scrape_figment2.py
+
+      - name: Update gallery HTML
+        run: python scripts/update_gallery.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add images/*.jpg images/*.png gallery.html || true
+          git commit -m "Update gallery images and HTML" || echo "No changes to commit"
           git push
