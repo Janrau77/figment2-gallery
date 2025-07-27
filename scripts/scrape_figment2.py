@@ -1,12 +1,16 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+
 from selenium.webdriver.common.by import By
 import os
 import requests
 
 options = Options()
+options.binary_location = "/usr/lib/chromium-browser/chromium-browser"  # path to Chromium
+
 options.headless = True
-driver = webdriver.Chrome(options=options)
+driver = webdriver.Chrome(service=Service(), options=options)
 
 
 driver.get("https://store.epicgames.com/en-US/p/figment2-creed-valley")
