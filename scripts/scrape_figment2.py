@@ -1,19 +1,25 @@
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import os
-from urllib.parse import urljoin
+import requests
 
-STORE_URL = "https://store.epicgames.com/en-US/p/figment-2"
+options = Options()
+options.headless = True
+driver = webdriver.Chrome(options=options)
 
-resp = requests.get(STORE_URL)
-soup = BeautifulSoup(resp.text, "html.parser")
-
-img_tags = soup.find_all("img")
-img_urls = {urljoin(STORE_URL, img['src']) for img in img_tags if img.get('src', '').endswith(('.jpg', '.png'))}
+driver.get("https://store.epicgames.com/en-US/p/figment2-creed-valley")
+img_elements = driver.find_elements("tag name", "img")
+img_urls = [img.get_attribute('src') for img in img_elements if img.get_attribute('src') and img.get_attribute('src').endswith(('.jpg', '.png'))]
 
 os.makedirs("images", exist_ok=True)
 
 for url in img_urls:
     fname = os.path.join("images", url.split("/")[-1])
-    with open(fname, "wb") as f:
-        f.write(requests.get(url).content)
+    try:
+        r = requests.get(url)
+        with open(fname, "wb") as f:
+            f.write(r.content)
+    except Exception as e:
+        print(f"Failed to download {url}: {e}")
+
+driver.quit()
