@@ -16,24 +16,12 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install Chrome and dependencies
+      - name: Install Chrome, ChromeDriver, and dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget unzip xvfb
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
-          rm google-chrome-stable_current_amd64.deb
-
-      - name: Install ChromeDriver
-        run: |
-          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+' | head -1)
-          wget -O /tmp/LATEST_RELEASE "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION}"
-          VERSION=$(cat /tmp/LATEST_RELEASE)
-          wget https://chromedriver.storage.googleapis.com/${VERSION}/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-          rm chromedriver_linux64.zip
+          sudo apt-get install -y wget unzip xvfb google-chrome-stable chromium-chromedriver
+          # Link chromedriver for compatibility with selenium default path
+          sudo ln -sf /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
 
       - name: Install Python dependencies
         run: pip install selenium requests beautifulsoup4
