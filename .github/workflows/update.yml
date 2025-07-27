@@ -20,9 +20,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y wget unzip xvfb google-chrome-stable chromium-chromedriver
+          sudo apt install -y google-chrome-stable
           # Link chromedriver for compatibility with selenium default path
           sudo ln -sf /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver || true
 
+      - name: Try locating Chromium
+        run: which chromium-browser || echo "Chromium not found"
+
+      - name: Install pip packages
+        run: pip install -r requirements.txt
 
       - name: Install Python dependencies
         run: pip install selenium requests beautifulsoup4
