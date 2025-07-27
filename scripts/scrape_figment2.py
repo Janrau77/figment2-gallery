@@ -6,7 +6,8 @@ import requests
 
 options = Options()
 options.headless = True
-driver = webdriver.Chrome(executable_path="/usr/lib/chromium-browser/chromedriver", options=options)
+driver = webdriver.Chrome(options=options)
+
 
 driver.get("https://store.epicgames.com/en-US/p/figment2-creed-valley")
 img_elements = driver.find_elements(By.TAG_NAME, "img")
